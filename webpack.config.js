@@ -41,8 +41,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, "src/assets"),
-          to: path.resolve(__dirname, "docs/assets"),
+          from: path.resolve(__dirname, "./src/assets/"),
+          to: path.resolve(__dirname, "./docs/assets/"),
         },
       ],
     }),
@@ -50,14 +50,38 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.html$/i,
-        loader: "html-loader",
+        test: /\.(html)$/i,
+        use: [
+          {
+            loader: "html-loader",
+            options: {
+              esModule: false,
+            },
+          },
+        ],
       },
       {
         test: /\.s[ac]ss$/i,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: (resourcePath, context) => {
+                return path.resolve(path.join(resourcePath), context) + "/";
+              },
+            },
+          },
+          "css-loader",
+          "sass-loader",
+        ],
       },
-      
+      {
+        test: /\.(jpe?g|png|gif|svg)$/i,
+        loader: "file-loader",
+        options: {
+          name: "/img/[name].[ext]",
+        },
+      },
     ],
   },
 };
